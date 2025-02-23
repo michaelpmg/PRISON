@@ -237,8 +237,8 @@ if __name__ == '__main__':
     all_projects = mergeXMLProjects([active_projects, closed_projects, terminating_projects])
     all_projects_no_duplicate = removeProjectDuplicates(all_projects)
 
-    COUNTRY = 'irak'
-    KEYWORD = COUNTRY
+    COUNTRY = ''
+    KEYWORD = 'gavi'
 
     all_found_projects = findProjectsByKeyWord(all_projects_no_duplicate, KEYWORD, False)
     stats = getProjectsStats(all_found_projects, COUNTRY)
