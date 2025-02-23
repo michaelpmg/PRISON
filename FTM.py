@@ -231,6 +231,16 @@ def writeXMLProjectListToFile(project_list, dirname, filename):
     print("Projects written to file : " + output_filename)
 
 #################################################################
+#                  CUSTOM CLASSES FOR DATA HANDLING
+#################################################################
+
+class GAC_Project:
+    def __init__(self, project_xml):
+        self.xml_ = project_xml
+        #self.proj_title = parseProject()
+        #
+
+#################################################################
 #                  MAIN SCRIPT SECTION
 #################################################################
 
@@ -239,7 +249,7 @@ if __name__ == '__main__':
     all_projects_no_duplicate = removeProjectDuplicates(all_projects)
 
     COUNTRY = ''
-    KEYWORD = 'LGBT'
+    KEYWORD = 'climat'
 
     all_found_projects = findProjectsByKeyWord(all_projects_no_duplicate, KEYWORD, False)
     stats = getProjectsStats(all_found_projects, COUNTRY)
