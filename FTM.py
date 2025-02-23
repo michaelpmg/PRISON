@@ -211,11 +211,11 @@ def writeStatsToFile(stats, dirname, filename, keyword):
     ensureDirectoryExists(directory_name)
     
     with open(output_filename, 'w') as f:
-        f.write("### Search results for '__" + keyword + "__'\n  ")
-        f.write("__Number of projects__ : " + stats['nb_projects'] + "\n  ")
-        f.write("__Total aid sent in $__ :" + str(stats['total_contrib'])  + "\n  " )
-        f.write("__Number of transactions ( engagements included )__ :" + str(stats['nb_transactions'])  + "\n  " )
-        f.write("__Number of transactions ( engagements excluded )__ :" + str(stats['nb_transactions_sent'])  + "\n  " )
+        f.write("### Search results for '_" + keyword + "_'<br />\n  ")
+        f.write("__Number of projects__ : " + stats['nb_projects'] + "<br />\n")
+        f.write("__Total aid sent in $__ :" + str(stats['total_contrib'])  + "<br />\n" )
+        f.write("__Number of transactions ( *engagements included* )__ :" + str(stats['nb_transactions'])  + "<br />\n" )
+        f.write("__Number of transactions ( *engagements excluded* )__ :" + str(stats['nb_transactions_sent'])  + "<br />\n")
         f.close()
         
     print("Stats written to file : " + output_filename)
@@ -238,8 +238,8 @@ if __name__ == '__main__':
     all_projects = mergeXMLProjects([active_projects, closed_projects, terminating_projects])
     all_projects_no_duplicate = removeProjectDuplicates(all_projects)
 
-    COUNTRY = ''
-    KEYWORD = 'gavi'
+    COUNTRY = 'irak'
+    KEYWORD = COUNTRY
 
     all_found_projects = findProjectsByKeyWord(all_projects_no_duplicate, KEYWORD, False)
     stats = getProjectsStats(all_found_projects, COUNTRY)
