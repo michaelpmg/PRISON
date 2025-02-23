@@ -387,7 +387,7 @@ if __name__ == '__main__':
     print(gac_proj_list.stats_['total_contrib'])
     
     COUNTRY = ''
-    KEYWORD = 'banque asiatique'
+    KEYWORD = 'aga khan'
 
     all_found_projects = findProjectsByKeyWord(all_projects_no_duplicate, KEYWORD, False)
     stats = getProjectsStats(all_found_projects, COUNTRY)
