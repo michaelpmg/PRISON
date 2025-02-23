@@ -58,7 +58,7 @@ def sumProjectsContributions(projects_list, country_contrib_str):
     for project in projects_list.findall('project'):
         contrib_mult = getCountryContributionPercentageNormalized(project, country_contrib_str)
         for transaction in project.find('transactions').findall('transaction'):
-            if transaction.get('transactionType') == "Déboursé":
+            if transaction.get('transactionType') == "Déboursé" or transaction.get('transactionType') == "Disbursement":
                 proj_sum += float(transaction.text) * contrib_mult
     return proj_sum
 
@@ -234,11 +234,146 @@ def writeXMLProjectListToFile(project_list, dirname, filename):
 #                  CUSTOM CLASSES FOR DATA HANDLING
 #################################################################
 
+# take a xml tag and return it's inner HTML as text
+def getValueFromXML(xml, tag_str):
+    return xml.find(tag_str).text
+
+# take a xml and return a child list from a parent and a child tag
+# ex : <xml> <parent_tag> <ct1></ct1> <ct2></ct2> </parent_tag> </xml>
+def getListFromXML(xml, parent_tag, child_tag):
+    return xml.find(parent_tag).findall(child_tag)
+
+# get a xml country and return and object containing the information
+def getSplittedCountryValuesFromXML(country_xml):
+    splitted_str = country_xml.text.split(' ')
+    contrib_perc_str = splitted_str
+    contrib_perc_str = splitted_str[len(splitted_str)-1]
+    contrib_perc_str = contrib_perc_str[:len(contrib_perc_str)-1]
+    contrib_perc_str = contrib_perc_str.replace(',', '.')
+    
+    return {
+        'country' : country_xml.text[:len(country_xml)- len(contrib_perc_str)-2],
+        'contribution' : float(contrib_perc_str) / 100.0
+    }
+
+
+# get a xml sector and return an object containing the information
+def getSplittedSectorValuesFromXML(sector_xml):
+    splitted_str = sector_xml.text.split(' ')
+    contrib_perc_str = splitted_str
+    contrib_perc_str = splitted_str[len(splitted_str)-1]
+    contrib_perc_str = contrib_perc_str[:len(contrib_perc_str)-1]
+    contrib_perc_str = contrib_perc_str.replace(',', '.')
+    
+    return {
+        'sector' : sector_xml.text[:len(sector_xml)- len(contrib_perc_str)-2],
+        'contribution' : float(contrib_perc_str) / 100.0
+    }
+
+# take a xml policy marker and return an object containing the information
+def getPolicyMarkerFromXML(policy_marker_xml):
+    return {
+        'policy' : policy_marker_xml.text,
+        'level' : policy_marker_xml.get('level')
+    }
+
+# take a xml location and return an object containing the information
+def getLocationFromXML(location_xml):
+    srs_name = location_xml.get('SRSName')
+    srs_splitted = srs_name.split('/')
+    epsg = srs_splitted[len(srs_splitted)-3]
+    code = srs_splitted[len(srs_splitted)-1]
+    lat = location_xml.text.split(' ')[0] if type(location_xml.text) is not type(None) else "0"
+    long = location_xml.text.split(' ')[1] if type(location_xml.text) is not type(None) and len(location_xml.text.split(' ')) > 1 else "0"
+    return {
+        'srs' : epsg+':'+code,
+        'lat' : lat,
+        'long' : long,
+    }
+
+# take a xml transaction and return an object containing the information
+def getTransactionFromXML(transaction_xml):
+    return {
+        'type' : transaction_xml.get('transactionType'),
+        'tied_status' : transaction_xml.get('tiedStatus'),
+        'amount' : transaction_xml.text,
+        'date' : transaction_xml.get('transactionDate')
+    }
+    
+'''
+Represent a Global Affairds Canada project
+'''
 class GAC_Project:
     def __init__(self, project_xml):
+        # hold the originL XML for this project. Should not be altered.
         self.xml_ = project_xml
-        #self.proj_title = parseProject()
-        #
+        
+        self.project_number_ = getValueFromXML(self.xml_, 'projectNumber')
+        self.title_ = getValueFromXML(self.xml_, 'title')
+        self.description_ = getValueFromXML(self.xml_, 'description')
+
+        # can be active, terminating or closed
+        self.status_ = getValueFromXML(self.xml_, 'status')
+
+        # start and end date of the engagement. A project should be closed after the end date.
+        self.dates_ = {
+            'start' : getValueFromXML(self.xml_, 'start'),
+            'end' : getValueFromXML(self.xml_, 'end')
+        }
+
+        # list of countries receiving the money. May be empty
+        self.countries_ = [
+            getSplittedCountryValuesFromXML(country_xml) for country_xml in getListFromXML(self.xml_, 'countries', 'country')
+        ]
+
+        # project executive agency partner. Basically the organisation we give the money to
+        self.exec_agency_partner_ = getValueFromXML(self.xml_, 'executingAgencyPartner')
+
+        # type of aid
+        self.sectors_ = [
+            getSplittedSectorValuesFromXML(sector_xml) for sector_xml in getListFromXML(self.xml_, 'DACSectors', 'DACSectors')
+        ]
+
+        # max contribution for the project. Transaction should not exceed this amount ..
+        self.max_contrib_ = getValueFromXML(self.xml_, 'maximumContribution')
+
+        # some information about the results of the project
+        self.expected_results_ = getValueFromXML(self.xml_, 'expectedResults')
+        self.achieved_results_ = getValueFromXML(self.xml_, 'resultsAchieved')
+
+        self.program_name_ = getValueFromXML(self.xml_, 'programName')
+
+        # policy markers seems to define organisation policy compliance in order to receive the fund
+        # things like sex equality, biodiversity, climat change etc ...
+        # might not be this, but it seems like it
+        self.policy_markers_ = [
+            getPolicyMarkerFromXML(policy_marker_xml) for policy_marker_xml in getListFromXML(self.xml_, 'policyMarkers', 'policyMarker')
+        ]
+
+        # define the region the aid is destined to. Not a particular country. Could be like 'subsahara region' , 'North america' etc..
+        self.regions_ = [
+            region_xml.text for region_xml in getListFromXML(self.xml_, 'regions', 'region')
+        ]
+
+        # some gps information about the project. Number of locations seems to match the number of region...
+        self.locations_ = [
+            getLocationFromXML(location_xml) for location_xml in getListFromXML(self.xml_, 'Locations', 'location')
+        ]
+
+        # all the transaction for this project
+        # transaction can either be an engagement or a payment
+        self.transactions_ = [
+            getTransactionFromXML(transaction_xml) for transaction_xml in getListFromXML(self.xml_, 'transactions', 'transaction')
+        ]
+
+'''
+    Hold all the GAC_Project in a list and stat them
+'''
+class GAC_ProjectList:
+    def __init__(self, project_list_xml):
+        self.xml_ = project_list_xml
+        self.projects_ = [GAC_Project(project) for project in project_list_xml.findall("project")]
+        self.stats_ = getProjectsStats(project_list_xml, '')
 
 #################################################################
 #                  MAIN SCRIPT SECTION
@@ -248,6 +383,9 @@ if __name__ == '__main__':
     all_projects = mergeXMLProjects([active_projects, closed_projects, terminating_projects])
     all_projects_no_duplicate = removeProjectDuplicates(all_projects)
 
+    gac_proj_list = GAC_ProjectList(all_projects_no_duplicate)
+    print(gac_proj_list.stats_['total_contrib'])
+    '''
     COUNTRY = ''
     KEYWORD = 'parlementaires'
 
@@ -257,3 +395,4 @@ if __name__ == '__main__':
     directory_name = KEYWORD
     writeStatsToFile(stats, directory_name, "README.md", KEYWORD)
     writeXMLProjectListToFile(all_found_projects, directory_name, "projects.xml")
+    '''
