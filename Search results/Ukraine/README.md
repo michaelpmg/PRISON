@@ -1,4 +1,6 @@
-Number of projects : 88
-Total aid sent in $ :531245156.95085
-Number of transactions ( engagements included ) :387
-Number of transactions ( engagements excluded ) :298
+### Search results for '__ukraine__'
+  __Number of projects__ : 88
+  __Total aid sent in $__ :531245156.95085
+  __Number of transactions ( engagements included )__ :387
+  __Number of transactions ( engagements excluded )__ :298
+  

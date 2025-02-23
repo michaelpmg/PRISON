@@ -1,4 +1,6 @@
-Number of projects : 42
-Total aid sent in $ :134308111.6114
-Number of transactions ( engagements included ) :180
-Number of transactions ( engagements excluded ) :138
+### Search results for '__irak__'
+  __Number of projects__ : 42
+  __Total aid sent in $__ :134308111.6114
+  __Number of transactions ( engagements included )__ :180
+  __Number of transactions ( engagements excluded )__ :138
+  

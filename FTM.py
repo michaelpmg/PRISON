@@ -205,16 +205,17 @@ def findProjectsByCountries(project_list, country_str):
 def ensureDirectoryExists(directory_name):
     os.makedirs(directory_name, exist_ok=True)
 
-def writeStatsToFile(stats, dirname, filename):
+def writeStatsToFile(stats, dirname, filename, keyword):
     directory_name = os.path.join(os.path.dirname(os.path.abspath(__file__)),"Search results", dirname)
     output_filename = os.path.join(directory_name, filename)
     ensureDirectoryExists(directory_name)
     
     with open(output_filename, 'w') as f:
-        f.write("Number of projects : " + stats['nb_projects'] + "\n")
-        f.write("Total aid sent in $ :" + str(stats['total_contrib'])  + "\n" )
-        f.write("Number of transactions ( engagements included ) :" + str(stats['nb_transactions'])  + "\n" )
-        f.write("Number of transactions ( engagements excluded ) :" + str(stats['nb_transactions_sent'])  + "\n" )
+        f.write("### Search results for '__" + keyword + "__'\n  ")
+        f.write("__Number of projects__ : " + stats['nb_projects'] + "\n  ")
+        f.write("__Total aid sent in $__ :" + str(stats['total_contrib'])  + "\n  " )
+        f.write("__Number of transactions ( engagements included )__ :" + str(stats['nb_transactions'])  + "\n  " )
+        f.write("__Number of transactions ( engagements excluded )__ :" + str(stats['nb_transactions_sent'])  + "\n  " )
         f.close()
         
     print("Stats written to file : " + output_filename)
@@ -244,5 +245,5 @@ if __name__ == '__main__':
     stats = getProjectsStats(all_found_projects, COUNTRY)
 
     directory_name = KEYWORD
-    writeStatsToFile(stats, directory_name, "README.md")
+    writeStatsToFile(stats, directory_name, "README.md", KEYWORD)
     writeXMLProjectListToFile(all_found_projects, directory_name, "projects.xml")
