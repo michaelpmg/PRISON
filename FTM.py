@@ -239,7 +239,7 @@ if __name__ == '__main__':
     all_projects_no_duplicate = removeProjectDuplicates(all_projects)
 
     COUNTRY = ''
-    KEYWORD = 'bangsamoro'
+    KEYWORD = 'LGBT'
 
     all_found_projects = findProjectsByKeyWord(all_projects_no_duplicate, KEYWORD, False)
     stats = getProjectsStats(all_found_projects, COUNTRY)
