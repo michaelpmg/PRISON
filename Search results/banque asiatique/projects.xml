@@ -1,4 +1,4 @@
-<filtered_by_word_banque asiatique><project>
+<filtered_by_word_banque_asiatique><project>
     <projectNumber>CA-3-D000389001</projectNumber>
     <dateModified>2025-02-07T07:36:47</dateModified>
     <title>Programme de développement de l'enseignement primaire III - Suivi relatif aux finances et résultats</title>
@@ -862,4 +862,4 @@
       <transaction transactionDate="2024-03-14T00:00:00" valueDate="2024-03-14T00:00:00" transactionType="Déboursé" flowType="APD" tiedStatus="">199999975.00</transaction>
     </transactions>
   </project>
-  </filtered_by_word_banque asiatique>
+  </filtered_by_word_banque_asiatique>
